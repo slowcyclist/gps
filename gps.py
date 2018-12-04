@@ -66,19 +66,26 @@ class gps_locator(Package):
     self.exit_gps = exit_function
     self.gpslogger = logger
     if self.check_positioning_enabled() :
-      dbus_hybris = dbus.SessionBus().get_object('org.freedesktop.Geoclue.Providers.Hybris', '/org/freedesktop/Geoclue/Providers/Hybris')
+      try 
+        dbus_hybris = dbus.SessionBus().get_object('org.freedesktop.Geoclue.Providers.Hybris', '/org/freedesktop/Geoclue/Providers/Hybris')
       
-      self.hybris_geo = dbus.Interface(dbus_hybris, 'org.freedesktop.Geoclue')
-      self.hybris_pos = dbus.Interface(dbus_hybris, 'org.freedesktop.Geoclue.Position')
-      self.hybris_velo = dbus.Interface(dbus_hybris, 'org.freedesktop.Geoclue.Velocity')
-      self.hybris_sat = dbus.Interface(dbus_hybris, 'org.freedesktop.Geoclue.Satellite')
+        self.hybris_geo = dbus.Interface(dbus_hybris, 'org.freedesktop.Geoclue')
+        self.hybris_pos = dbus.Interface(dbus_hybris, 'org.freedesktop.Geoclue.Position')
+        self.hybris_velo = dbus.Interface(dbus_hybris, 'org.freedesktop.Geoclue.Velocity')
+        self.hybris_sat = dbus.Interface(dbus_hybris, 'org.freedesktop.Geoclue.Satellite')
      
-      self.hybris_geo.AddReference()
-      self.status_update (self.hybris_geo.GetStatus())
+        self.hybris_geo.AddReference()
+        self.status_update (self.hybris_geo.GetStatus())
      
-      self.connect_geo = self.hybris_geo.connect_to_signal(signal_name = "StatusChanged", handler_function = self.status_update)
-      self.connect_pos = self.hybris_pos.connect_to_signal(signal_name = "PositionChanged", handler_function = self.position_update)
-      self.connect_sat = self.hybris_sat.connect_to_signal(signal_name = "SatelliteChanged", handler_function = self.sat_update)
+        self.connect_geo = self.hybris_geo.connect_to_signal(signal_name = "StatusChanged", handler_function = self.status_update)
+        self.connect_pos = self.hybris_pos.connect_to_signal(signal_name = "PositionChanged", handler_function = self.position_update)
+        self.connect_sat = self.hybris_sat.connect_to_signal(signal_name = "SatelliteChanged", handler_function = self.sat_update)
+      except dbus.exceptions.DBusException as e:
+        if self.gpslogger : self.gpslogger.info ("""dbus error connecting to hybris:
+{}
+Cannot continue!
+Are you really running SaifishOS on a gps-enabled device?""".format(e))
+        self.exit_gps("Sorry, cannot talk with gps")
       self.timeout = GLib.timeout_add_seconds(t_o, self.end_gps_location)
     else :
       self.exit_gps("Sorry, error enabling gps")
@@ -105,7 +112,7 @@ class gps_locator(Package):
         #if not, we could enable data radio (wifi or cellular) and mls
         # for the moment do nothing 
     except Exception as e:
-      if self.gpslogger : self.gpslogger.info ("error reading localisation config file :".format(e))
+      if self.gpslogger : self.gpslogger.info ("error reading localisation config file :{}\nAre you really running SaifishOS?".format(e))
       return False
     if need_enabling :
       return self.enable_gps()
