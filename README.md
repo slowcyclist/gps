@@ -1,9 +1,9 @@
 # gps
 Pure python script to get a gps fix on SailfishOS phones. Can be used standalone or as a importable class.
 
-May also enable positioning if disabled in UI, but this needs prior setup of `sudo`
+May also enable positioning if disabled in UI, but this needs prior setup of `sudo` (see below)
 
-### command line invocation and arguments
+### Command line invocation and arguments
 
 ```
 [nemo@Sailfish]$ ./gps.py --help
@@ -51,3 +51,23 @@ https://www.openstreetmap.org/?mlat=47.53212889984024&mlon=1.07628340795575&zoom
 ```
 
 If the phone is moving (above 2.5 km/h), it will record the track up to the timeout and print the list of coordinates.
+
+### Enabling gps by script
+
+The script already contains what is necessary to activate positioning and gps if these were disabled in the UI. It does it [following this post at TJC](https://together.jolla.com/question/192476/enableactivate-gps-positioning-in-terminal-commandline/?answer=194556#post-id-194556).
+For this to work automatically from within the script *without running the whole script as root*, you should set up `sudo`
+(see [here](https://together.jolla.com/question/44012/how-to-use-sudo/?answer=44013#post-id-44013)) and edit the `/etc/sudoers` file. For editing this file using `nano` as editor (which you may need to install first) you can type `sudo EDITOR=nano visudo`
+
+then, **below** the line 
+`nemo ALL=(ALL:ALL) ALL`
+add this line:
+`nemo ALL=(root) NOPASSWD: /bin/sed -i * /etc/location/location.conf` 
+
+then save your changes. Now the script can enable the gps, even when running as nemo.
+
+In the repo I also made a standalone shell script `enable_gps` that you can run as nemo. Its content is simply:
+```
+#!/bin/sh
+sudo /bin/sed -i 's|^enabled=false|enabled=true|' /etc/location/location.conf
+sudo /bin/sed -i 's|^gps\\enabled=false|gps\\enabled=true|' /etc/location/location.conf
+```
