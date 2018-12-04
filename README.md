@@ -59,8 +59,11 @@ For this to work automatically from within the script *without running the whole
 (see [here](https://together.jolla.com/question/44012/how-to-use-sudo/?answer=44013#post-id-44013)) and edit the `/etc/sudoers` file. For editing this file using `nano` as editor (which you may need to install first) you can type `sudo EDITOR=nano visudo`
 
 then, **below** the line 
+
 `nemo ALL=(ALL:ALL) ALL`
+
 add this line:
+
 `nemo ALL=(root) NOPASSWD: /bin/sed -i * /etc/location/location.conf` 
 
 then save your changes. Now the script can enable the gps, even when running as nemo.
