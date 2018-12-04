@@ -1,0 +1,13 @@
+#!/bin/sh
+
+#for this to work you need to edit the /etc/sudoers file 
+#IT IS HIGHLY RECOMMENDED TO ONLY USE the command "sudo visudo" to edit this file
+#(if you get an error that the editor is not defined try "sudo EDITOR=nano visudo" 
+#then *after* the line 
+#nemo ALL=(ALL:ALL) ALL
+#add this line
+#nemo ALL=(root) NOPASSWD: /bin/sed -i * /etc/location/location.conf
+
+sudo /bin/sed -i 's|^enabled=false|enabled=true|' /etc/location/location.conf
+sudo /bin/sed -i 's|^gps\\enabled=false|gps\\enabled=true|' /etc/location/location.conf
+
