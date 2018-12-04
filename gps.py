@@ -66,7 +66,7 @@ class gps_locator(Package):
     self.exit_gps = exit_function
     self.gpslogger = logger
     if self.check_positioning_enabled() :
-      try 
+      try :
         dbus_hybris = dbus.SessionBus().get_object('org.freedesktop.Geoclue.Providers.Hybris', '/org/freedesktop/Geoclue/Providers/Hybris')
       
         self.hybris_geo = dbus.Interface(dbus_hybris, 'org.freedesktop.Geoclue')
